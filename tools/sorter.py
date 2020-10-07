@@ -5,7 +5,7 @@ import os
 import shutil
 import heapq
 from collections import namedtuple
-import tracemalloc
+from tools.memory_logger import memory_logger
 import re
 
 storage_dir = '.batches/'
@@ -63,7 +63,7 @@ def recursively_merge_sort(filename_list: list, temp_dir: str, offset_count=50):
 
     for number, filename in enumerate(filename_list):
         files_to_merging.append(filename)
-        if isinstance(number / offset_count, int):
+        if number != 0 and number % offset_count == 0:
             result_files.append(merge_sort(files_to_merging, temp_dir))
             files_to_merging = []
 
@@ -78,9 +78,9 @@ def recursively_merge_sort(filename_list: list, temp_dir: str, offset_count=50):
     return output_filename
 
 
+@memory_logger
 def batch_sort(sorting_filename, output_filename, batch_size=500, opened_files_limit=50, temp_dir=storage_dir):
     print('Sorting...')
-    tracemalloc.start()
 
     batch_names = []
     merged_names = []
@@ -115,11 +115,3 @@ def batch_sort(sorting_filename, output_filename, batch_size=500, opened_files_l
     result_file = recursively_merge_sort(merged_names, temp_dir, opened_files_limit)
     shutil.move(result_file, output_filename)
     shutil.rmtree(temp_dir)
-
-    peak = tracemalloc.get_traced_memory()[1]
-    tracemalloc.stop()
-    print(f'Sorted in:', round(time.time() - time_start, 1), f'seconds. Peak memory usage was {peak / 10 ** 6}MB')
-
-
-
-

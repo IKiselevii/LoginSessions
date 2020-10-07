@@ -1,0 +1,5 @@
+/venv
+/tools/__pycache__/
+logins0.csv
+detected_sessions.csv
+logins0_sorted.csv
